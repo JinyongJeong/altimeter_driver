@@ -1,0 +1,9 @@
+ACTION=="add", ATTRS{idVendor}=="1546", ATTRS{idProduct}=="01a7", SYMLINK+="ttyUSB-gps", GROUP="irap"
+ACTION=="add", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6001", ATTRS{serial}=="FT8ZIV80", SYMLINK+="ttyUSB-fog", GROUP="irap"
+ACTION=="add", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6015", ATTRS{serial}=="DJ004YCP", SYMLINK+="ttyUSB-power", GROUP="irap"
+ACTION=="add", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", ATTRS{serial}=="0001", SYMLINK+="ttyUSB-encoder", GROUP="irap"
+ACTION=="add", ATTRS{idVendor}=="067b", ATTRS{idProduct}=="2303", SYMLINK+="ttyUSB-alt", GROUP="irap"
+ACTION=="add", ATTRS{idVendor}=="2639", ATTRS{idProduct}=="0013", ATTRS{serial}=="03700531", SYMLINK+="ttyUSB-mti", GROUP="irap"
+ACTION=="add", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6015", ATTRS{serial}=="DJ004IUA", SYMLINK+="ttyUSB-encoder", GROUP="irap"
+ACTION=="add", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", SYMLINK+="ttyUSB-rtk", GROUP="irap"
+

@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package>
+  <name>encoder_driver</name>
+  <version>0.0.0</version>
+  <description>encoder driver package</description>
+
+  <author email="jjy0923@kaist.ac.kr">Jinyong Jeong</author>
+
+  <maintainer email="jjy0923@kaist.ac.kr">Jinyong Jeong</maintainer>
+
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>serial</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <run_depend>serial</run_depend>
+  <run_depend>std_msgs</run_depend>
+
+</package>
