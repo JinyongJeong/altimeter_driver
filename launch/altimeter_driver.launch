@@ -1,10 +1,10 @@
 <launch>
-    <arg name="device" default="/dev/ttyUSB-encoder"/>
-    <arg name="encoder_driver" default="encoder_driver"/>
+    <arg name="device" default="/dev/ttyUSB-alt"/>
+    <arg name="altimeter_driver" default="altimeter_driver"/>
     <arg name="baudrate" default="115200"/>
     <arg name="output" default="screen"/>
 
-    <node name="$(arg encoder_driver)" pkg="encoder_driver" type="encoder_driver" output="$(arg output)">
+    <node name="$(arg encoder_driver)" pkg="altimeter_driver" type="altimeter_driver" output="$(arg output)">
         <param name="device" type="string" value="$(arg device)"/>
         <param name="baudrate" type="int" value="$(arg baudrate)"/>
     </node>

@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>encoder_driver</name>
+  <name>altimeter_driver</name>
   <version>0.0.0</version>
-  <description>encoder driver package</description>
+  <description>altimeter driver package</description>
 
   <author email="jjy0923@kaist.ac.kr">Jinyong Jeong</author>
 

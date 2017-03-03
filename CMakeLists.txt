@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(encoder_driver)
+project(altimeter_driver)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
@@ -17,9 +17,9 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(encoder_driver src/encoder_driver.cpp)
+add_executable(altimeter_driver src/altimeter_driver.cpp)
 
-target_link_libraries(encoder_driver
+target_link_libraries(altimeter_driver
   ${catkin_LIBRARIES}
 )
 
