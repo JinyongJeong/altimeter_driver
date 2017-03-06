@@ -1,21 +1,10 @@
 #include <stdio.h>
-#include <poll.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/ioctl.h>
-#include <sys/time.h>
-#include <fcntl.h>
-#include <termios.h>
-#include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
 #include <ros/ros.h>
-#include <std_msgs/String.h>
-#include <std_msgs/Float64.h>
-#ifdef __linux__
-#include <linux/serial.h>
-#define SUPPORT_HISPEED 1
-#endif
+
+#include <altimeter_driver/altimeter.h>
+#include <basic_serial.h>
 
 using namespace std;
 
@@ -26,91 +15,6 @@ struct alt {
     double alt; // [m]
     double T;   // [C]
 };
-
-int 
-_serial_set_canonical (int fd)
-{
-    struct termios tio;
-
-    if ( tcgetattr (fd, &tio) ) {
-    //    PERROR ("tcgetattr()");
-        return -1;
-    }
-
-    tio.c_lflag |= ICANON;
-
-    if ( tcsetattr (fd, TCSANOW, &tio) ) {
-    //    PERROR ("tcsetattr()");
-        return -1;
-    }
-
-    return 0;
-}
-int serial_translate_baud(int inrate)
-{
-	switch(inrate)
-	{
-	case 0:
-		return B0;
-	case 300:
-		return B300;
-	case 1200:
-		return B1200;
-	case 2400:
-		return B2400;
-	case 4800:
-		return B4800;
-	case 9600:
-		return B9600;
-	case 19200:
-		return B19200;
-	case 38400:
-		return B38400;
-	case 57600:
-		return B57600;
-	case 115200:
-		return B115200;
-	case 230400:
-		return B230400;
-#ifdef SUPPORT_HISPEED
-	case 460800:
-		return B460800;
-#endif
-	default:
-		return -1; // do custom divisor
-	}
-}
-
-int serial_open(const char *port, int baud, int blocking)
-{
-	struct termios opts;
-	int flags = O_RDWR | O_NOCTTY;
-	if (!blocking)
-		flags |= O_NONBLOCK;
-
-	int fd=open(port, flags, 0);
-	if (fd==-1)
-		return -1;
-
-	if (tcgetattr(fd, &opts))
-	{
-		printf("*** %i\n",fd);
-		perror("tcgetattr");
-		return -1;
-	}
-	cfsetispeed(&opts, serial_translate_baud(baud));
-	cfsetospeed(&opts, serial_translate_baud(baud));
-	cfmakeraw(&opts);
-    opts.c_cflag &= ~CSTOPB;
-	if (tcsetattr(fd,TCSANOW,&opts))
-	{
-		perror("tcsetattr");
-		return -1;
-	}
-
-	tcflush(fd, TCIOFLUSH);
-	return fd;
-}
 
 int
 _send_init_command (int fd)
@@ -127,7 +31,7 @@ _send_init_command (int fd)
 }
 
 alt_t
-_parse_alt_data (char *str)
+parse_alt_data (char *str)
 {
     // ex $0,1015.2070,-16.28,40.29
     //    SENSOR_ID, pressure, altimeter, temparature
@@ -190,17 +94,17 @@ _parse_alt_data (char *str)
     return alt_data;    
 }
 
-std_msgs::Float64
+altimeter_driver::altimeter
 convert_to_msg (char *str)
 {
-    std_msgs::Float64 alt_msg;
+    altimeter_driver::altimeter altimeter_data;
 
-    alt_t alt_data = _parse_alt_data (str);
+    alt_t alt_data = parse_alt_data (str);
 
     if (alt_data.valid == 1) {
-        alt_msg.data = alt_data.alt;
+        altimeter_data.data = alt_data.alt;
     }
-    return alt_msg;
+    return altimeter_data;
 }
 
 
@@ -210,7 +114,7 @@ main (int argc, char *argv[])
 
     ros::init(argc, argv, "altimeter_driver_node");
     ros::NodeHandle nh;
-    ros::Publisher altimeter_pub = nh.advertise<std_msgs::Float64>("altimeter_data", 10);
+    ros::Publisher altimeter_pub = nh.advertise<altimeter_driver::altimeter>("altimeter_data", 10);
 
     char ttydev[] = "/dev/ttyUSB-alt";
     int brate = 115200;
@@ -218,7 +122,7 @@ main (int argc, char *argv[])
 
     int fd = serial_open (ttydev, brate, 0);
 
-    _serial_set_canonical (fd);
+    serial_set_canonical (fd);
 
     char buf [256];
     int len;
@@ -237,7 +141,7 @@ main (int argc, char *argv[])
 
     if (_send_init_command (fd) < 0) return -1;
 
-    std_msgs::Float64 alt_data;
+    altimeter_driver::altimeter alt_data;
 
     while(ros::ok()) {
         ros::spinOnce();
@@ -250,7 +154,10 @@ main (int argc, char *argv[])
                 memset (&buf, '\0', 256);
                 
                 len = read (fd, buf, sizeof buf);
+
                 alt_data = convert_to_msg(buf);
+                alt_data.header.stamp  = ros::Time::now();
+                alt_data.header.frame_id = "altimeter";
                 altimeter_pub.publish(alt_data);
                 
             }
@@ -262,7 +169,7 @@ main (int argc, char *argv[])
         }
     }
 
-    close(fd);
+    serial_close(fd);
 
     return 0;
 }
