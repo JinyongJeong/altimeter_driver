@@ -115,12 +115,15 @@ main (int argc, char *argv[])
     ros::init(argc, argv, "altimeter_driver_node");
     ros::NodeHandle nh;
     ros::Publisher altimeter_pub = nh.advertise<altimeter_driver::altimeter>("altimeter_data", 10);
-
-    char ttydev[] = "/dev/ttyUSB-alt";
+  
+    //char ttydev[] = "/dev/ttyUSB-alt";
+    std::string ttydev;
     int brate = 115200;
-    char channel[] = "altimeter_data";
+    ros::param::param<std::string>("~device", ttydev, "/dev/ttyUSB-alt");
+    ros::param::param<int>("~baudrate", brate, 115200);
+    int fd = serial_open (ttydev.c_str(), brate, 0);
 
-    int fd = serial_open (ttydev, brate, 0);
+    char channel[] = "altimeter_data";
 
     serial_set_canonical (fd);
 
